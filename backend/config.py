@@ -11,10 +11,10 @@ class Settings(BaseSettings):
     
     # GitLab Configuration
     GITLAB_URL: str = "https://gitlab.com"
-    GITLAB_TOKEN: str
+    GITLAB_TOKEN: str = "test_token"  # Required in production
     
     # LLM Provider Configuration
-    LLM_PROVIDER: str = "openai"  # openai, gemini, claude
+    LLM_PROVIDER: str = "gemini"  # openai, gemini, claude
     
     # API Keys
     OPENAI_API_KEY: Optional[str] = None
@@ -22,15 +22,15 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: Optional[str] = None
     
     # Webhook Configuration
-    WEBHOOK_SECRET: str
+    WEBHOOK_SECRET: str = "default_secret"  # Required in production
     
     # Database Configuration
-    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/code_review_db"
+    DATABASE_URL: str = "sqlite:///./code_review.db"  # Fallback to SQLite
     
     # Application Settings
     APP_HOST: str = "0.0.0.0"
-    APP_PORT: int = 8000
-    DEBUG: bool = True
+    PORT: int = 8000  # Railway will override this
+    DEBUG: bool = False
     
     # Analysis Settings
     MAX_CODE_LENGTH: int = 50000

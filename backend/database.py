@@ -46,12 +46,19 @@ def init_db():
     global engine, SessionLocal
     
     try:
-        engine = create_engine(settings.DATABASE_URL)
+        db_url = settings.DATABASE_URL
+        
+        # If no DATABASE_URL, use SQLite as fallback
+        if not db_url or db_url == "":
+            logger.warning("⚠️ No DATABASE_URL found, using SQLite fallback")
+            db_url = "sqlite:///./code_review.db"
+        
+        engine = create_engine(db_url)
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
         
         # Create tables
         Base.metadata.create_all(bind=engine)
-        logger.info("✅ Database initialized")
+        logger.info(f"✅ Database initialized: {db_url.split('@')[0] if '@' in db_url else 'SQLite'}")
         
     except Exception as e:
         logger.warning(f"⚠️ Database init failed: {str(e)}")

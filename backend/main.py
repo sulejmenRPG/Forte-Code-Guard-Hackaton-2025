@@ -44,7 +44,7 @@ async def lifespan(app: FastAPI):
     logger.info("✅ Code Analyzer initialized")
     
     logger.info(f"🎯 LLM Provider: {settings.LLM_PROVIDER}")
-    logger.info(f"🌐 Server running on {settings.APP_HOST}:{settings.APP_PORT}")
+    logger.info(f"🌐 Server running on {settings.APP_HOST}:{settings.PORT}")
     
     yield
     
@@ -240,6 +240,6 @@ if __name__ == "__main__":
     uvicorn.run(
         "main:app",
         host=settings.APP_HOST,
-        port=settings.APP_PORT,
+        port=settings.PORT,
         reload=settings.DEBUG
     )
