@@ -1,0 +1,25 @@
+{
+  "total_mrs": 12,
+  "total_comments": 47,
+  "time_saved_hours": 4.5,
+  "avg_score": 7.2,
+  "ai_provider": "Gemini 2.5 Flash",
+  "webhook_status": "Connected",
+  "daily_activity": [
+    {"date": "2025-11-18", "mrs": 2, "comments": 8},
+    {"date": "2025-11-19", "mrs": 3, "comments": 12},
+    {"date": "2025-11-20", "mrs": 4, "comments": 15},
+    {"date": "2025-11-21", "mrs": 3, "comments": 12}
+  ],
+  "team_stats": [
+    {"developer": "john_dev", "mrs": 5, "avg_score": 8.2, "time_saved": 2.5},
+    {"developer": "maria_dev", "mrs": 7, "avg_score": 6.5, "time_saved": 3.2},
+    {"developer": "alex_senior", "mrs": 3, "avg_score": 9.1, "time_saved": 1.8}
+  ],
+  "issue_types": [
+    {"type": "Security", "count": 18},
+    {"type": "Code Style", "count": 12},
+    {"type": "Performance", "count": 8},
+    {"type": "Best Practices", "count": 9}
+  ]
+}

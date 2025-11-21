@@ -1,0 +1,58 @@
+# AI Code Review Rules Configuration
+# Поместите этот файл в корень вашего проекта как .codereview-rules.yaml
+
+project_type: backend  # backend, frontend, mobile
+language: python       # python, javascript, typescript, java, go, etc.
+framework: fastapi     # fastapi, django, react, angular, etc.
+
+# Правила безопасности (критично для банка)
+security_rules:
+  - no_hardcoded_passwords: true
+  - sql_parameterization_required: true
+  - sensitive_data_encryption: true
+  - no_hardcoded_api_keys: true
+  - require_input_validation: true
+  - csrf_protection_required: true
+  - xss_prevention: true
+
+# Стиль кода
+code_style:
+  - follow_pep8: true  # для Python
+  - max_function_length: 50
+  - max_complexity: 10
+  - require_docstrings: true
+  - naming_conventions: "snake_case для функций, PascalCase для классов"
+
+# Специфичные требования для банка
+banking_specific:
+  - require_transaction_logging: true
+  - require_error_handling: true
+  - pci_dss_compliance: true
+  - gdpr_compliance: true
+  - require_audit_trail: true
+
+# Производительность
+performance:
+  - avoid_n_plus_one_queries: true
+  - use_caching_where_appropriate: true
+  - optimize_database_queries: true
+  - async_for_io_operations: true
+
+# Кастомные проверки (на русском языке)
+custom_checks:
+  - "Все API endpoint'ы должны иметь rate limiting"
+  - "Логировать все операции с деньгами"
+  - "Использовать только утверждённые библиотеки из internal_packages.txt"
+  - "Все внешние API вызовы должны иметь retry механизм"
+  - "Обязательная валидация входных данных для всех эндпоинтов"
+  - "Использовать prepared statements для SQL запросов"
+
+# Игнорировать определённые файлы/паттерны
+ignore_patterns:
+  - "tests/*"
+  - "migrations/*"
+  - "*.md"
+  - "docs/*"
+
+# Минимальный score для автоматического approve
+auto_approve_threshold: 8.5
