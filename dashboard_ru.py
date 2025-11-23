@@ -152,30 +152,118 @@ st.markdown("""
         color: #ffffff !important;
     }
     
-    /* Tables */
+    /* Streamlit Dataframe - DARK THEME */
+    .stDataFrame {
+        background-color: #1e293b !important;
+    }
+    
     .dataframe {
-        border: 1px solid #4a5568;
+        border: 1px solid #4a5568 !important;
         border-radius: 8px;
         color: #ffffff !important;
+        background-color: #1e293b !important;
     }
     
-    .dataframe th {
+    .dataframe thead tr {
+        background-color: #2d3748 !important;
+    }
+    
+    .dataframe thead th {
         background-color: #2d3748 !important;
         color: #ffffff !important;
+        border-color: #4a5568 !important;
+        padding: 12px !important;
     }
     
-    .dataframe td {
+    .dataframe tbody tr {
+        background-color: #1e293b !important;
+    }
+    
+    .dataframe tbody tr:hover {
+        background-color: #252936 !important;
+    }
+    
+    .dataframe tbody td {
         background-color: #1e293b !important;
         color: #ffffff !important;
+        border-color: #334155 !important;
+        padding: 12px !important;
     }
     
-    /* Streamlit widgets */
-    .stSelectbox, .stTextInput, .stTextArea {
+    .dataframe tbody tr:hover td {
+        background-color: #252936 !important;
+    }
+    
+    /* Streamlit widgets - DARK THEME */
+    .stSelectbox, .stTextInput, .stTextArea, .stNumberInput {
         color: #ffffff !important;
     }
     
+    /* Selectbox dropdown */
     .stSelectbox > div > div {
         background-color: #2d3748 !important;
+        color: #ffffff !important;
+        border: 1px solid #4a5568 !important;
+    }
+    
+    /* Text inputs */
+    .stTextInput > div > div > input {
+        background-color: #2d3748 !important;
+        color: #ffffff !important;
+        border: 1px solid #4a5568 !important;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 1px #6366f1 !important;
+    }
+    
+    /* Number input */
+    .stNumberInput > div > div > input {
+        background-color: #2d3748 !important;
+        color: #ffffff !important;
+        border: 1px solid #4a5568 !important;
+    }
+    
+    /* Text area */
+    .stTextArea > div > div > textarea {
+        background-color: #2d3748 !important;
+        color: #ffffff !important;
+        border: 1px solid #4a5568 !important;
+    }
+    
+    .stTextArea > div > div > textarea:focus {
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 1px #6366f1 !important;
+    }
+    
+    /* Slider */
+    .stSlider > div > div > div {
+        background-color: #4a5568 !important;
+    }
+    
+    .stSlider > div > div > div > div {
+        background-color: #6366f1 !important;
+    }
+    
+    /* Multiselect */
+    .stMultiSelect > div > div {
+        background-color: #2d3748 !important;
+        border: 1px solid #4a5568 !important;
+        color: #ffffff !important;
+    }
+    
+    .stMultiSelect span {
+        color: #ffffff !important;
+    }
+    
+    .stMultiSelect [data-baseweb="tag"] {
+        background-color: #6366f1 !important;
+        color: #ffffff !important;
+    }
+    
+    /* Toggle */
+    .stCheckbox > label {
         color: #ffffff !important;
     }
     
@@ -186,17 +274,18 @@ st.markdown("""
         border-radius: 8px !important;
     }
     
-    /* HTML Tables */
+    /* HTML Tables - DARK THEME */
     table {
         width: 100%;
         border-collapse: collapse;
-        background-color: #1e293b;
+        background-color: #1e293b !important;
         border-radius: 8px;
         overflow: hidden;
+        table-layout: fixed;
     }
     
     table thead {
-        background-color: #2d3748;
+        background-color: #2d3748 !important;
     }
     
     table th {
@@ -205,16 +294,57 @@ st.markdown("""
         color: #cbd5e1 !important;
         font-weight: 600;
         border-bottom: 2px solid #4a5568;
+        background-color: #2d3748 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     
     table td {
         padding: 12px;
         color: #ffffff !important;
         border-bottom: 1px solid #334155;
+        background-color: #1e293b !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    table tbody tr {
+        background-color: #1e293b !important;
     }
     
     table tr:hover {
-        background-color: #252936;
+        background-color: #252936 !important;
+    }
+    
+    table tr:hover td {
+        background-color: #252936 !important;
+    }
+    
+    /* Fixed column widths for better layout */
+    table th:nth-child(1), table td:nth-child(1) {
+        width: 15%;
+    }
+    
+    table th:nth-child(2), table td:nth-child(2) {
+        width: 10%;
+    }
+    
+    table th:nth-child(3), table td:nth-child(3) {
+        width: 20%;
+    }
+    
+    table th:nth-child(4), table td:nth-child(4) {
+        width: 15%;
+    }
+    
+    table th:nth-child(5), table td:nth-child(5) {
+        width: 15%;
+    }
+    
+    table th:nth-child(6), table td:nth-child(6) {
+        width: 25%;
     }
     
     /* Remove default streamlit branding */
