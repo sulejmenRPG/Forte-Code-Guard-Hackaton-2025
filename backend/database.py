@@ -90,6 +90,22 @@ def save_review(mr_data: dict, analysis_result: dict):
     
     db = SessionLocal()
     try:
+        # Calculate realistic time saved based on issues found
+        critical = analysis_result.get('critical_count', 0)
+        medium = analysis_result.get('medium_count', 0)
+        low = analysis_result.get('low_count', 0)
+        total_issues = critical + medium + low
+        
+        # Realistic calculation:
+        # - Base: 5 min for running analysis
+        # - Critical issue: 10 min to identify + 20 min to fix
+        # - Medium issue: 5 min to identify + 10 min to fix
+        # - Low issue: 2 min to identify
+        # Max cap: 120 min (2 hours)
+        estimated_time = 5 + (critical * 30) + (medium * 15) + (low * 2)
+        estimated_time = min(estimated_time, 120)  # Cap at 2 hours
+        estimated_time = max(estimated_time, 5)   # Minimum 5 min
+        
         review = CodeReviewDB(
             merge_request_id=mr_data.get('iid'),
             project_id=mr_data.get('project_id'),
@@ -98,11 +114,11 @@ def save_review(mr_data: dict, analysis_result: dict):
             team=None,  # Can be extracted from project metadata
             analysis_time=30,  # Placeholder, можно засечь реальное время
             score=analysis_result.get('score', 0),
-            critical_issues=analysis_result.get('critical_count', 0),
-            medium_issues=analysis_result.get('medium_count', 0),
-            low_issues=analysis_result.get('low_count', 0),
+            critical_issues=critical,
+            medium_issues=medium,
+            low_issues=low,
             status='needs_review' if analysis_result.get('score', 0) < 7 else 'approved',
-            senior_time_saved=analysis_result.get('estimated_time_saved', 90),
+            senior_time_saved=estimated_time,
             summary=analysis_result.get('summary', '')
         )
         

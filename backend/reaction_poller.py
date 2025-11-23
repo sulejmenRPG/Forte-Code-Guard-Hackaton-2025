@@ -92,9 +92,10 @@ class ReactionPoller:
             ]
             
             if not ai_notes:
+                logger.debug(f"⚠️ No AI comments found in MR #{mr_iid} (total notes: {len(notes)})")
                 return
             
-            logger.debug(f"📝 Found {len(ai_notes)} AI comments in MR #{mr_iid}")
+            logger.info(f"📝 Found {len(ai_notes)} AI comments in MR #{mr_iid}")
             
             # Проверить reactions на каждом AI комментарии
             for note in ai_notes:
@@ -123,7 +124,10 @@ class ReactionPoller:
             reactions = self.gitlab_client.get_note_reactions(project_id, mr_iid, note_id)
             
             if not reactions:
+                logger.debug(f"💭 No reactions on note {note_id}")
                 return
+            
+            logger.info(f"👍👎 Note {note_id} has reactions: {reactions}")
             
             # Проверить thumbsdown
             thumbsdown_key = f"{note_id}:thumbsdown"

@@ -128,13 +128,15 @@ class GitLabClient:
         summary = analysis['summary']
         issues = analysis.get('issues', [])
         
-        # Calculate realistic time saved based on lines changed
-        lines_changed = analysis.get('lines_changed', 0)
-        if lines_changed > 0:
-            # Formula: 0.5 min per line for manual review
-            estimated_time = max(5, min(int(lines_changed * 0.5), 120))
-        else:
-            estimated_time = 15  # Default for small changes
+        # Calculate realistic time saved based on issues found
+        # Same formula as database.py for consistency
+        # - Base: 5 min for running analysis
+        # - Critical issue: 30 min (10 identify + 20 fix)
+        # - Medium issue: 15 min (5 identify + 10 fix)
+        # - Low issue: 2 min (identify)
+        estimated_time = 5 + (critical * 30) + (medium * 15) + (low * 2)
+        estimated_time = min(estimated_time, 120)  # Cap at 2 hours
+        estimated_time = max(estimated_time, 5)    # Minimum 5 min
         
         # Emoji based on score
         if score >= 8.0:
