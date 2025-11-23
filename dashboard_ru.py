@@ -395,6 +395,78 @@ st.markdown("""
         width: 25%;
     }
     
+    /* AGGRESSIVE FIX for white dataframes */
+    div[data-testid="stDataFrame"] div,
+    div[data-testid="stDataFrame"] table,
+    div[data-testid="stDataFrame"] thead,
+    div[data-testid="stDataFrame"] tbody,
+    div[data-testid="stDataFrame"] tr,
+    div[data-testid="stDataFrame"] th,
+    div[data-testid="stDataFrame"] td {
+        background-color: #1e293b !important;
+        color: #ffffff !important;
+    }
+    
+    div[data-testid="stDataFrame"] thead th {
+        background-color: #2d3748 !important;
+    }
+    
+    /* Page transitions and animations */
+    .main .block-container {
+        animation: fadeIn 0.3s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Smooth transitions for all interactive elements */
+    .stButton button,
+    .metric-card,
+    table tr,
+    .status-badge {
+        transition: all 0.2s ease;
+    }
+    
+    /* Card entrance animation */
+    .metric-card {
+        animation: slideUp 0.4s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Section headers animation */
+    .section-header {
+        animation: slideRight 0.3s ease-out;
+    }
+    
+    @keyframes slideRight {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
     /* Remove default streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -731,11 +803,9 @@ elif page == "▸ Команда":
         df_team["Время сэкономлено"] = df_team["time_saved"].apply(lambda x: f"{x}ч")
         df_team["Ранг"] = df_team["rank"]
         
-        st.dataframe(
-            df_team[["Ранг", "Разработчик", "MRs", "Средний Score", "Время сэкономлено"]],
-            use_container_width=True,
-            hide_index=True
-        )
+        # Use HTML table instead of st.dataframe for dark theme
+        df_display = df_team[["Ранг", "Разработчик", "MRs", "Средний Score", "Время сэкономлено"]]
+        st.markdown(df_display.to_html(escape=False, index=False), unsafe_allow_html=True)
     else:
         st.info("Нет данных по команде.")
 
@@ -765,5 +835,6 @@ elif page == "▸ Обучение":
         {"Дата": "2025-11-21", "Область": "Стиль кода", "Улучшение": "Расширена проверка PEP 8"}
     ]
     
+    # Use HTML table instead of st.dataframe for dark theme
     df_improvements = pd.DataFrame(improvements)
-    st.dataframe(df_improvements, use_container_width=True, hide_index=True)
+    st.markdown(df_improvements.to_html(escape=False, index=False), unsafe_allow_html=True)
