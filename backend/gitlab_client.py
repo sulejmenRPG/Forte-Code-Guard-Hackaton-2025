@@ -138,6 +138,10 @@ class GitLabClient:
         estimated_time = min(estimated_time, 120)  # Cap at 2 hours
         estimated_time = max(estimated_time, 5)    # Minimum 5 min
         
+        # Calculate lines changed for display
+        lines_changed = analysis.get('lines_changed', 0)
+        total_issues = critical + medium + low
+        
         # Emoji based on score
         if score >= 8.0:
             emoji = "✅"
