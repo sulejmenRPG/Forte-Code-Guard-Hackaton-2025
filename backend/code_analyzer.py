@@ -99,13 +99,14 @@ class CodeAnalyzer:
         
         return result
     
-    async def analyze_changes(self, changes: List[Dict], mr_data: Dict) -> Dict[str, Any]:
+    async def analyze_changes(self, changes: List[Dict], mr_data: Dict, custom_rules: str = None) -> Dict[str, Any]:
         """
         Main method to analyze code changes
         
         Args:
             changes: List of file changes from GitLab
             mr_data: Merge Request metadata
+            custom_rules: Optional custom rules from settings
             
         Returns:
             Analysis result dictionary
@@ -117,8 +118,10 @@ class CodeAnalyzer:
             code_text = self._format_changes_for_analysis(changes)
             code_text = self._truncate_if_needed(code_text)
             
-            # Get review prompt
-            prompt = get_review_prompt(code_text)
+            # Get review prompt with custom rules if provided
+            import os
+            rules = custom_rules or os.getenv("CUSTOM_RULES", "")
+            prompt = get_review_prompt(code_text, custom_rules=rules if rules else None)
             
             # Add learned patterns from feedback
             learned_context = learning_system.get_feedback_for_prompt()

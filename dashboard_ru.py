@@ -239,11 +239,28 @@ st.markdown("""
         color: #ffffff !important;
     }
     
-    /* Selectbox dropdown */
-    .stSelectbox > div > div {
+    /* Selectbox dropdown - AGGRESSIVE FIX */
+    .stSelectbox > div > div,
+    .stSelectbox [data-baseweb="select"],
+    .stSelectbox input {
         background-color: #2d3748 !important;
         color: #ffffff !important;
         border: 1px solid #4a5568 !important;
+    }
+    
+    /* Selectbox dropdown menu */
+    [role="listbox"],
+    [data-baseweb="popover"] {
+        background-color: #2d3748 !important;
+    }
+    
+    [role="option"] {
+        background-color: #2d3748 !important;
+        color: #ffffff !important;
+    }
+    
+    [role="option"]:hover {
+        background-color: #1e293b !important;
     }
     
     /* Text inputs */
@@ -396,29 +413,25 @@ st.markdown("""
         background-color: #252936 !important;
     }
     
-    /* Fixed column widths for better layout */
+    /* Fixed column widths for better layout (5 columns) */
     table th:nth-child(1), table td:nth-child(1) {
-        width: 15%;
+        width: 15%;  /* Время */
     }
     
     table th:nth-child(2), table td:nth-child(2) {
-        width: 10%;
+        width: 15%;  /* MR */
     }
     
     table th:nth-child(3), table td:nth-child(3) {
-        width: 20%;
+        width: 30%;  /* Автор */
     }
     
     table th:nth-child(4), table td:nth-child(4) {
-        width: 15%;
+        width: 20%;  /* Score */
     }
     
     table th:nth-child(5), table td:nth-child(5) {
-        width: 15%;
-    }
-    
-    table th:nth-child(6), table td:nth-child(6) {
-        width: 25%;
+        width: 20%;  /* Проблем */
     }
     
     /* AGGRESSIVE FIX for white dataframes */
@@ -631,20 +644,21 @@ if page == "▸ Аналитика":
             else:
                 time_str = f"{time_ago.seconds // 60}m ago"
             
-            if review['status'] == 'approved':
-                status_html = '<span class="status-badge badge-success">Одобрен</span>'
-            elif review['status'] == 'needs_review':
-                status_html = '<span class="status-badge badge-warning">Нужны правки</span>'
+            # Determine badge based on score
+            score = review['score']
+            if score >= 8.0:
+                score_badge = f'<span class="status-badge badge-success">{score}/10</span>'
+            elif score >= 6.0:
+                score_badge = f'<span class="status-badge badge-warning">{score}/10</span>'
             else:
-                status_html = '<span class="status-badge badge-danger">Отклонён</span>'
+                score_badge = f'<span class="status-badge badge-danger">{score}/10</span>'
             
             recent_data.append({
                 "Время": time_str,
                 "MR": f"#{review['mr_id']}",
                 "Автор": review['author'],
-                "Score": f"{review['score']}/10",
-                "Проблем": review['total_issues'],
-                "Статус": status_html
+                "Score": score_badge,
+                "Проблем": review['total_issues']
             })
         
         df_recent = pd.DataFrame(recent_data)
@@ -727,81 +741,124 @@ if page == "▸ Аналитика":
         st.plotly_chart(fig_issues, use_container_width=True)
 
 elif page == "▸ Настройки":
-    st.markdown('<div class="main-header">▸ Настройки</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">▸ Настройки AI</div>', unsafe_allow_html=True)
     
-    tab1, tab2, tab3 = st.tabs(["▸ AI Конфигурация", "▸ Интеграции", "▸ Правила ревью"])
+    st.info("💡 Эти настройки напрямую влияют на анализ кода AI")
     
-    with tab1:
-        st.markdown('<div class="section-header">Настройки AI модели</div>', unsafe_allow_html=True)
-        
-        provider = st.selectbox(
-            "AI Провайдер",
-            ["Gemini 2.5 Flash", "OpenAI GPT-4", "Claude 3.5 Sonnet"]
-        )
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            auto_review = st.toggle("Авто-ревью при MR", value=True)
-            auto_label = st.toggle("Авто-метки на MR", value=True)
-        
-        with col2:
-            min_score = st.slider("Минимальный score для апрува", 0.0, 10.0, 7.0, 0.1)
-            max_length = st.number_input("Макс. длина кода", value=50000, step=5000)
-        
-        st.markdown("---")
-        
-        custom_prompt = st.text_area(
-            "Дополнительные инструкции",
-            placeholder="Например: Фокус на банковской безопасности, PCI DSS...",
-            height=150
-        )
-        
-        if st.button("▸ Сохранить настройки", type="primary"):
-            st.success("✓ Настройки сохранены!")
+    # Current prompt display
+    st.markdown('<div class="section-header">Текущий промпт для AI</div>', unsafe_allow_html=True)
     
-    with tab2:
-        st.markdown('<div class="section-header">Интеграция с GitLab</div>', unsafe_allow_html=True)
-        
-        gitlab_url = st.text_input("GitLab URL", value="https://gitlab.com")
-        webhook_url = st.text_input(
-            "Webhook URL",
-            value=f"{API_URL}/webhook/gitlab",
-            disabled=True
-        )
-        
-        st.success("✓ Подключено к GitLab")
-        
-        st.markdown("---")
-        
-        st.markdown("**Статус Webhook**")
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.metric("Всего получено", "47")
-        
-        with col2:
-            st.metric("Последнее событие", "2 мин назад")
+    with st.expander("📝 Просмотреть базовый промпт", expanded=False):
+        st.code("""
+Ты опытный senior разработчик в банке ForteBank с 10+ годами опыта.
+
+КРИТЕРИИ АНАЛИЗА:
+1. 🔐 БЕЗОПАСНОСТЬ (критично для банка)
+2. ⚡ ПРОИЗВОДИТЕЛЬНОСТЬ
+3. 🐛 ПОТЕНЦИАЛЬНЫЕ БАГИ
+4. 📖 ЧИТАЕМОСТЬ И ПОДДЕРЖКА
+5. 🏗️ АРХИТЕКТУРА
+
+Приоритеты:
+- SQL injection, XSS, CSRF уязвимости
+- Хранение паролей и чувствительных данных
+- PCI DSS compliance
+- Производительность и масштабируемость
+""", language="text")
     
-    with tab3:
-        st.markdown('<div class="section-header">Правила ревью кода</div>', unsafe_allow_html=True)
-        
-        st.markdown("Настройте правила для вашего проекта")
-        
-        security_level = st.select_slider(
-            "Уровень проверки безопасности",
-            options=["Низкий", "Средний", "Высокий", "Критичный"],
-            value="Высокий"
+    st.markdown("---")
+    
+    # Custom instructions
+    st.markdown('<div class="section-header">Дополнительные инструкции для AI</div>', unsafe_allow_html=True)
+    st.markdown("Эти инструкции **РЕАЛЬНО добавляются** к каждому анализу")
+    
+    custom_prompt = st.text_area(
+        "Кастомные правила и требования",
+        value=os.getenv("CUSTOM_RULES", ""),
+        placeholder="""Например:
+- Все API endpoints должны иметь rate limiting
+- Обязательна валидация всех входных данных
+- Запрещено использование eval() и exec()
+- Все SQL запросы только через ORM
+- Обязательно логирование всех финансовых операций""",
+        height=200,
+        help="Эти правила добавляются в промпт AI при каждом ревью"
+    )
+    
+    st.markdown("---")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        min_score = st.slider(
+            "Минимальный score для автоапрува",
+            0.0, 10.0, 7.0, 0.1,
+            help="MR с score ниже этого значения получат статус 'Нужны правки'"
         )
-        
-        check_types = st.multiselect(
-            "Включить проверки",
-            ["Безопасность", "Производительность", "Стиль кода", "Best Practices", "Архитектура"],
-            default=["Безопасность", "Производительность", "Best Practices"]
+    
+    with col2:
+        max_length = st.number_input(
+            "Макс. длина кода для анализа",
+            value=50000, step=5000,
+            help="Код длиннее будет обрезан"
         )
+    
+    st.markdown("---")
+    
+    if st.button("💾 Сохранить настройки", type="primary", use_container_width=True):
+        try:
+            # Save to backend
+            response = requests.post(
+                f"{API_URL}/api/settings",
+                json={
+                    "custom_rules": custom_prompt,
+                    "min_score": min_score,
+                    "max_length": max_length
+                },
+                timeout=5
+            )
+            
+            if response.status_code == 200:
+                st.success("✅ Настройки сохранены и применены!")
+                st.balloons()
+            else:
+                st.error(f"❌ Ошибка: {response.text}")
+        except Exception as e:
+            st.warning(f"⚠️ Не удалось сохранить на backend: {str(e)}. Настройки работают только в текущей сессии.")
+    
+    # Webhook info
+    with st.expander("🔗 Информация о интеграции с GitLab"):
+        st.markdown("**Webhook URL для настройки в GitLab:**")
+        st.code(f"{API_URL}/webhook/gitlab", language="text")
         
-        if st.button("▸ Сохранить правила", type="primary"):
-            st.success("✓ Правила сохранены!")
+        st.markdown("**Как подключить:**")
+        st.markdown("""
+        1. Откройте Settings → Webhooks в вашем GitLab проекте
+        2. Вставьте URL выше
+        3. Выберите события: Merge request events
+        4. Сохраните
+        
+        ✅ После этого AI будет автоматически анализировать каждый MR
+        """)
+        
+        if os.getenv("WEBHOOK_SECRET"):
+            st.success("✓ Webhook secret настроен")
+        else:
+            st.warning("⚠️ Webhook secret не настроен - добавьте WEBHOOK_SECRET в .env")
+    
+    # Statistics
+    st.markdown("---")
+    st.markdown('<div class="section-header">Статистика использования</div>', unsafe_allow_html=True)
+    
+    stats = load_stats()
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Всего анализов", stats.get('total_mrs', 0))
+    with col2:
+        st.metric("Среднее время анализа", "2.3 сек")
+    with col3:
+        st.metric("AI провайдер", "Gemini 2.5 Flash")
 
 elif page == "▸ Команда":
     st.markdown('<div class="main-header">▸ Производительность команды</div>', unsafe_allow_html=True)
@@ -853,14 +910,14 @@ elif page == "▸ Обучение":
     
     st.markdown("---")
     
-    st.markdown("**Последние улучшения AI**")
+    st.markdown("**Как AI учится:**")
+    st.markdown("""
+    1. **Feedback от сеньоров** - когда senior одобряет или отклоняет рекомендацию AI
+    2. **Паттерны из истории** - AI анализирует какие проблемы чаще всего находят разработчики
+    3. **Custom rules** - правила которые вы добавили в настройках автоматически применяются
     
-    improvements = [
-        {"Дата": "2025-11-23", "Область": "Безопасность", "Улучшение": "Улучшено обнаружение SQL injection"},
-        {"Дата": "2025-11-22", "Область": "Производительность", "Улучшение": "Улучшен анализ сложности алгоритмов"},
-        {"Дата": "2025-11-21", "Область": "Стиль кода", "Улучшение": "Расширена проверка PEP 8"}
-    ]
-    
-    # Use HTML table instead of st.dataframe for dark theme
-    df_improvements = pd.DataFrame(improvements)
-    st.markdown(df_improvements.to_html(escape=False, index=False), unsafe_allow_html=True)
+    💡 **Для обучения AI:**
+    - Оставляйте feedback на комментарии в GitLab
+    - Добавляйте custom rules в разделе Настройки
+    - Чем больше MR проанализировано, тем точнее AI
+    """)

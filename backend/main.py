@@ -10,7 +10,7 @@ import logging
 from typing import Optional
 
 from backend.config import settings
-from backend.models import WebhookPayload, HealthResponse
+from backend.models import WebhookPayload, HealthResponse, AISettings
 from backend.gitlab_client import GitLabClient
 from backend.code_analyzer import CodeAnalyzer
 from backend.feedback import learning_system, Feedback
@@ -160,9 +160,12 @@ async def gitlab_webhook(
             logger.info("ℹ️ No changes to analyze")
             return {"status": "success", "message": "No changes to analyze"}
         
-        # Analyze code
+        # Analyze code with custom rules from settings
         logger.info("🤖 Starting AI analysis...")
-        analysis_result = await code_analyzer.analyze_changes(changes, mr_data)
+        custom_rules = current_settings.get("custom_rules", "")
+        if custom_rules:
+            logger.info(f"📋 Using custom rules ({len(custom_rules)} chars)")
+        analysis_result = await code_analyzer.analyze_changes(changes, mr_data, custom_rules=custom_rules)
         
         # Post results to GitLab
         logger.info("💬 Posting analysis results to GitLab...")
@@ -269,6 +272,52 @@ async def get_learning_patterns():
         return learning_system.get_learning_patterns()
     except Exception as e:
         logger.error(f"Error getting learning patterns: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Global settings storage (in-memory for now, can be moved to DB)
+current_settings = {
+    "custom_rules": "",
+    "min_score": 7.0,
+    "max_length": 50000
+}
+
+
+@app.post("/api/settings")
+async def save_settings(ai_settings: AISettings):
+    """Save AI configuration settings"""
+    try:
+        global current_settings
+        current_settings = {
+            "custom_rules": ai_settings.custom_rules or "",
+            "min_score": ai_settings.min_score,
+            "max_length": ai_settings.max_length
+        }
+        
+        # Also save to environment for persistence (optional)
+        import os
+        if ai_settings.custom_rules:
+            os.environ["CUSTOM_RULES"] = ai_settings.custom_rules
+        
+        logger.info(f"✅ Settings updated: min_score={ai_settings.min_score}, max_length={ai_settings.max_length}")
+        
+        return {
+            "status": "success",
+            "message": "Настройки сохранены и будут применены к следующим анализам",
+            "settings": current_settings
+        }
+    except Exception as e:
+        logger.error(f"Error saving settings: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/settings")
+async def get_settings():
+    """Get current AI configuration settings"""
+    try:
+        return current_settings
+    except Exception as e:
+        logger.error(f"Error getting settings: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

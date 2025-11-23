@@ -4,8 +4,9 @@ Data models for the application
 
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
-from datetime import datetime
 from enum import Enum
+import os
+from datetime import datetime
 
 
 class Severity(str, Enum):
@@ -91,3 +92,10 @@ class CodeReviewRecord(BaseModel):
     low_issues: int
     status: str
     senior_time_saved: int  # minutes
+
+
+class AISettings(BaseModel):
+    """AI Configuration Settings"""
+    custom_rules: Optional[str] = None
+    min_score: float = Field(default=7.0, ge=0, le=10)
+    max_length: int = Field(default=50000, gt=0)
