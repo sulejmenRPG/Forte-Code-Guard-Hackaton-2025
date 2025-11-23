@@ -101,7 +101,33 @@ class GeminiProvider(LLMProvider):
             
             logger.info(f"📦 Extracted JSON (first 300 chars): {content[:300]}")
             
-            result = json.loads(content)
+            # Try to parse JSON with error handling
+            try:
+                result = json.loads(content)
+            except json.JSONDecodeError as json_error:
+                logger.error(f"❌ JSON parsing error: {str(json_error)}")
+                logger.error(f"❌ Invalid JSON content: {content[:1000]}")
+                
+                # Attempt to fix common JSON issues
+                try:
+                    # Fix: remove trailing commas, fix quotes, etc.
+                    import re
+                    # Remove trailing commas before closing braces/brackets
+                    fixed_content = re.sub(r',(\s*[}\]])', r'\1', content)
+                    result = json.loads(fixed_content)
+                    logger.warning("⚠️ JSON fixed with regex, proceeding")
+                except:
+                    # If still fails, return minimal valid response
+                    logger.error("❌ Could not fix JSON, returning fallback")
+                    return {
+                        "summary": "Analysis failed due to invalid AI response format. Please try again.",
+                        "score": 5.0,
+                        "issues": [],
+                        "recommendation": "needs_review",
+                        "critical_count": 0,
+                        "medium_count": 0,
+                        "low_count": 0
+                    }
             
             logger.info(f"✅ Gemini analysis complete. Score: {result.get('score', 'N/A')}")
             return result
