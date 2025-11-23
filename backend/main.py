@@ -140,6 +140,9 @@ async def gitlab_webhook(
         project_id = payload.get('project', {}).get('id')
         mr_iid = mr_data.get('iid')
         
+        # Add project_id to mr_data for database save
+        mr_data['project_id'] = project_id
+        
         # Check for duplicate processing
         mr_key = (project_id, mr_iid)
         current_time = time.time()

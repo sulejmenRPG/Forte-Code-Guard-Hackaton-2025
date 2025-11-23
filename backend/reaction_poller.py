@@ -56,9 +56,17 @@ class ReactionPoller:
             
             for review in recent_reviews:
                 try:
+                    project_id = review.get('project_id')
+                    mr_iid = review.get('mr_id')
+                    
+                    # Skip if project_id is missing
+                    if not project_id:
+                        logger.debug(f"⚠️ Skipping MR #{mr_iid} - no project_id in database")
+                        continue
+                    
                     await self.check_review_comments(
-                        project_id=review.get('project_id'),
-                        mr_iid=review.get('mr_id')
+                        project_id=project_id,
+                        mr_iid=mr_iid
                     )
                 except Exception as e:
                     logger.warning(f"⚠️ Error checking review {review.get('mr_id')}: {str(e)}")
