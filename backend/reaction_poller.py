@@ -61,9 +61,10 @@ class ReactionPoller:
                     
                     # Skip if project_id is missing
                     if not project_id:
-                        logger.debug(f"⚠️ Skipping MR #{mr_iid} - no project_id in database")
+                        logger.info(f"⚠️ Skipping MR #{mr_iid} - no project_id in database")
                         continue
                     
+                    logger.info(f"🔎 Checking MR #{mr_iid} in project {project_id}")
                     await self.check_review_comments(
                         project_id=project_id,
                         mr_iid=mr_iid
@@ -92,7 +93,7 @@ class ReactionPoller:
             ]
             
             if not ai_notes:
-                logger.debug(f"⚠️ No AI comments found in MR #{mr_iid} (total notes: {len(notes)})")
+                logger.info(f"⚠️ No AI comments found in MR #{mr_iid} (total notes: {len(notes)})")
                 return
             
             logger.info(f"📝 Found {len(ai_notes)} AI comments in MR #{mr_iid}")
@@ -124,7 +125,7 @@ class ReactionPoller:
             reactions = self.gitlab_client.get_note_reactions(project_id, mr_iid, note_id)
             
             if not reactions:
-                logger.debug(f"💭 No reactions on note {note_id}")
+                logger.info(f"💭 No reactions on note {note_id}")
                 return
             
             logger.info(f"👍👎 Note {note_id} has reactions: {reactions}")
