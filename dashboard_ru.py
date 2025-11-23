@@ -43,6 +43,15 @@ st.markdown("""
         color: var(--text-primary) !important;
     }
     
+    /* Header/Top container fix */
+    header, [data-testid="stHeader"] {
+        background-color: var(--dark-bg) !important;
+    }
+    
+    .main .block-container {
+        background-color: var(--dark-bg) !important;
+    }
+    
     /* Force light text everywhere */
     .stMarkdown, .stText, p, span, div {
         color: var(--text-primary) !important;
@@ -152,46 +161,77 @@ st.markdown("""
         color: #ffffff !important;
     }
     
-    /* Streamlit Dataframe - DARK THEME */
-    .stDataFrame {
+    /* Streamlit Dataframe - DARK THEME - MAXIMUM SPECIFICITY */
+    [data-testid="stDataFrame"],
+    .stDataFrame,
+    .stDataFrame > div,
+    .element-container .stDataFrame {
         background-color: #1e293b !important;
     }
     
-    .dataframe {
+    /* Dataframe table */
+    .dataframe,
+    table.dataframe {
         border: 1px solid #4a5568 !important;
         border-radius: 8px;
         color: #ffffff !important;
         background-color: #1e293b !important;
+        width: 100% !important;
     }
     
-    .dataframe thead tr {
+    .dataframe thead,
+    table.dataframe thead {
         background-color: #2d3748 !important;
     }
     
-    .dataframe thead th {
+    .dataframe thead tr,
+    table.dataframe thead tr {
+        background-color: #2d3748 !important;
+    }
+    
+    .dataframe thead th,
+    table.dataframe thead th,
+    .dataframe th {
         background-color: #2d3748 !important;
         color: #ffffff !important;
         border-color: #4a5568 !important;
         padding: 12px !important;
+        font-weight: 600 !important;
     }
     
-    .dataframe tbody tr {
+    .dataframe tbody,
+    table.dataframe tbody {
         background-color: #1e293b !important;
     }
     
-    .dataframe tbody tr:hover {
+    .dataframe tbody tr,
+    table.dataframe tbody tr {
+        background-color: #1e293b !important;
+    }
+    
+    .dataframe tbody tr:hover,
+    table.dataframe tbody tr:hover {
         background-color: #252936 !important;
     }
     
-    .dataframe tbody td {
+    .dataframe tbody td,
+    table.dataframe tbody td,
+    .dataframe td {
         background-color: #1e293b !important;
         color: #ffffff !important;
         border-color: #334155 !important;
         padding: 12px !important;
     }
     
-    .dataframe tbody tr:hover td {
+    .dataframe tbody tr:hover td,
+    table.dataframe tbody tr:hover td {
         background-color: #252936 !important;
+    }
+    
+    /* Override any white backgrounds */
+    .dataframe *,
+    table.dataframe * {
+        background-color: inherit !important;
     }
     
     /* Streamlit widgets - DARK THEME */
@@ -218,11 +258,19 @@ st.markdown("""
         box-shadow: 0 0 0 1px #6366f1 !important;
     }
     
-    /* Number input */
-    .stNumberInput > div > div > input {
+    /* Number input - MORE SPECIFIC */
+    .stNumberInput > div > div > input,
+    .stNumberInput input[type="number"],
+    div[data-baseweb="input"] input {
         background-color: #2d3748 !important;
         color: #ffffff !important;
         border: 1px solid #4a5568 !important;
+    }
+    
+    .stNumberInput > div > div > input:focus,
+    .stNumberInput input[type="number"]:focus {
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 1px #6366f1 !important;
     }
     
     /* Text area */
@@ -403,33 +451,33 @@ def load_recent_reviews():
 
 # Sidebar Navigation
 with st.sidebar:
-    st.markdown("### 🤖 AI Ревью Кода")
+    st.markdown("### ▸ AI Ревью Кода")
     st.markdown("**ForteBank Hackathon 2025**")
     st.markdown("---")
     
     page = st.radio(
         "Навигация",
-        ["📊 Аналитика", "⚙️ Настройки", "👥 Команда", "🧠 Обучение"],
+        ["▸ Аналитика", "▸ Настройки", "▸ Команда", "▸ Обучение"],
         label_visibility="collapsed"
     )
     
     st.markdown("---")
     st.markdown("**Статус системы**")
-    st.success("✅ AI: Онлайн")
-    st.success("✅ GitLab: Подключен")
-    st.info("💡 Провайдер: Gemini 2.5 Flash")
+    st.success("✓ AI: Онлайн")
+    st.success("✓ GitLab: Подключен")
+    st.info("● Провайдер: Gemini 2.5 Flash")
 
 # Main Content
-if page == "📊 Аналитика":
-    st.markdown('<div class="main-header">📊 Панель Аналитики</div>', unsafe_allow_html=True)
+if page == "▸ Аналитика":
+    st.markdown('<div class="main-header">▸ Панель Аналитики</div>', unsafe_allow_html=True)
     
     stats = load_stats()
     
     # Data source indicator
     if stats.get('is_real_data'):
-        st.success("📡 Отображаются реальные данные из backend")
+        st.success("● Отображаются реальные данные из backend")
     else:
-        st.warning("🎨 Демо режим - Подключите БД для реальных данных")
+        st.warning("● Демо режим - Подключите БД для реальных данных")
     
     st.markdown("---")
     
@@ -468,7 +516,7 @@ if page == "📊 Аналитика":
         </div>
         """, unsafe_allow_html=True)
     
-    st.markdown('<div class="section-header">🕒 Последняя активность</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">▸ Последняя активность</div>', unsafe_allow_html=True)
     
     recent_reviews = load_recent_reviews()
     
@@ -507,7 +555,7 @@ if page == "📊 Аналитика":
         st.info("Нет активности. Создайте MR в GitLab для отображения данных.")
     
     # Charts
-    st.markdown('<div class="section-header">📈 Метрики производительности</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">▸ Метрики производительности</div>', unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     
@@ -580,10 +628,10 @@ if page == "📊 Аналитика":
         )
         st.plotly_chart(fig_issues, use_container_width=True)
 
-elif page == "⚙️ Настройки":
-    st.markdown('<div class="main-header">⚙️ Настройки</div>', unsafe_allow_html=True)
+elif page == "▸ Настройки":
+    st.markdown('<div class="main-header">▸ Настройки</div>', unsafe_allow_html=True)
     
-    tab1, tab2, tab3 = st.tabs(["🤖 AI Конфигурация", "🔗 Интеграции", "📋 Правила ревью"])
+    tab1, tab2, tab3 = st.tabs(["▸ AI Конфигурация", "▸ Интеграции", "▸ Правила ревью"])
     
     with tab1:
         st.markdown('<div class="section-header">Настройки AI модели</div>', unsafe_allow_html=True)
@@ -611,8 +659,8 @@ elif page == "⚙️ Настройки":
             height=150
         )
         
-        if st.button("💾 Сохранить настройки", type="primary"):
-            st.success("✅ Настройки сохранены!")
+        if st.button("▸ Сохранить настройки", type="primary"):
+            st.success("✓ Настройки сохранены!")
     
     with tab2:
         st.markdown('<div class="section-header">Интеграция с GitLab</div>', unsafe_allow_html=True)
@@ -624,7 +672,7 @@ elif page == "⚙️ Настройки":
             disabled=True
         )
         
-        st.success("✅ Подключено к GitLab")
+        st.success("✓ Подключено к GitLab")
         
         st.markdown("---")
         
@@ -654,11 +702,11 @@ elif page == "⚙️ Настройки":
             default=["Безопасность", "Производительность", "Best Practices"]
         )
         
-        if st.button("💾 Сохранить правила", type="primary"):
-            st.success("✅ Правила сохранены!")
+        if st.button("▸ Сохранить правила", type="primary"):
+            st.success("✓ Правила сохранены!")
 
-elif page == "👥 Команда":
-    st.markdown('<div class="main-header">👥 Производительность команды</div>', unsafe_allow_html=True)
+elif page == "▸ Команда":
+    st.markdown('<div class="main-header">▸ Производительность команды</div>', unsafe_allow_html=True)
     
     stats = load_stats()
     
@@ -691,8 +739,8 @@ elif page == "👥 Команда":
     else:
         st.info("Нет данных по команде.")
 
-elif page == "🧠 Обучение":
-    st.markdown('<div class="main-header">🧠 Центр обучения AI</div>', unsafe_allow_html=True)
+elif page == "▸ Обучение":
+    st.markdown('<div class="main-header">▸ Центр обучения AI</div>', unsafe_allow_html=True)
     
     st.markdown("Помогите улучшить AI, оставляя обратную связь на проверки")
     
