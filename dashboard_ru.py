@@ -1032,26 +1032,65 @@ elif page == "▸ Настройки":
     st.markdown("---")
     st.markdown('<div class="section-header"><i class="fas fa-database"></i> Управление данными</div>', unsafe_allow_html=True)
     
-    st.markdown("**Очистка базы данных:**")
-    st.markdown("Удалит все сохраненные reviews из БД. Dashboard будет показывать только новые MR.")
+    # Database management card
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid #ef4444;
+        border-radius: 12px;
+        padding: 24px;
+        margin: 16px 0;
+    ">
+        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+            <i class="fas fa-trash-alt" style="color: #ef4444; font-size: 24px; margin-right: 12px;"></i>
+            <h4 style="color: #ef4444; margin: 0;">Очистка базы данных</h4>
+        </div>
+        <p style="color: #94a3b8; margin-bottom: 16px; line-height: 1.6;">
+            <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+            <strong style="color: #f59e0b;">Внимание:</strong> Это действие удалит все сохраненные reviews из базы данных. 
+            Dashboard будет показывать только новые Merge Requests. Данные невозможно будет восстановить.
+        </p>
+        <div style="background-color: #0f172a; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+            <div style="color: #64748b; font-size: 14px;">
+                <i class="fas fa-info-circle" style="color: #3b82f6;"></i> 
+                <strong>Что будет удалено:</strong>
+            </div>
+            <ul style="color: #94a3b8; margin: 8px 0 0 24px; font-size: 14px;">
+                <li>История всех code reviews</li>
+                <li>Метрики и статистика</li>
+                <li>Данные о найденных проблемах</li>
+            </ul>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns([3, 1])
+    # Confirmation and action
+    col1, col2 = st.columns([2, 1])
     with col1:
-        confirm_clear = st.checkbox("Я понимаю что это удалит все данные", key="confirm_clear")
+        confirm_clear = st.checkbox(
+            "✓ Я понимаю последствия и хочу удалить все данные",
+            key="confirm_clear"
+        )
     with col2:
-        if st.button("Очистить БД", type="secondary", disabled=not confirm_clear, use_container_width=True):
+        if st.button(
+            "🗑️ Очистить БД", 
+            type="secondary", 
+            disabled=not confirm_clear, 
+            use_container_width=True,
+            help="Эта операция необратима!"
+        ):
             try:
                 response = requests.delete(f"{API_URL}/api/reviews", timeout=5)
                 if response.status_code == 200:
                     data = response.json()
-                    st.success(f"✅ Удалено {data['deleted_count']} reviews из БД")
-                    st.info("🔄 Обнови страницу чтобы увидеть изменения")
+                    st.markdown(f'<div style="padding: 10px; background-color: #10b98133; border-left: 4px solid #10b981; border-radius: 4px; color: #10b981;"><i class="fas fa-check-circle"></i> Удалено {data["deleted_count"]} reviews из БД</div>', unsafe_allow_html=True)
+                    st.markdown('<div style="padding: 10px; background-color: #3b82f633; border-left: 4px solid #3b82f6; border-radius: 4px; color: #3b82f6;"><i class="fas fa-sync-alt"></i> Обнови страницу чтобы увидеть изменения</div>', unsafe_allow_html=True)
                     time.sleep(1)
                     st.rerun()
                 else:
-                    st.error(f"❌ Ошибка: {response.text}")
+                    st.markdown(f'<div style="padding: 10px; background-color: #ef444433; border-left: 4px solid #ef4444; border-radius: 4px; color: #ef4444;"><i class="fas fa-times-circle"></i> Ошибка: {response.text}</div>', unsafe_allow_html=True)
             except Exception as e:
-                st.error(f"❌ Backend недоступен: {str(e)}")
+                st.markdown(f'<div style="padding: 10px; background-color: #ef444433; border-left: 4px solid #ef4444; border-radius: 4px; color: #ef4444;"><i class="fas fa-times-circle"></i> Backend недоступен: {str(e)}</div>', unsafe_allow_html=True)
     
     st.markdown("---")
     st.markdown('<div class="section-header">Интеграция с GitLab</div>', unsafe_allow_html=True)
