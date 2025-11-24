@@ -618,11 +618,23 @@ st.markdown("""
         color: #ffffff !important;
     }
     
-    /* Code blocks inside text areas and expanders */
-    code, pre, .stCode {
-        background-color: #1a1d29 !important;
+    /* Code blocks - MAXIMUM VISIBILITY */
+    code, 
+    pre, 
+    .stCode,
+    [data-testid="stCode"],
+    .stCode > div,
+    .stCode pre {
+        background-color: #0f172a !important;
         color: #e2e8f0 !important;
         border: 1px solid #4a5568 !important;
+    }
+    
+    /* Code block text */
+    .stCode code,
+    pre code {
+        color: #e2e8f0 !important;
+        background-color: transparent !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -890,13 +902,8 @@ elif page == "▸ Настройки":
         st.markdown("**💡 Это РЕАЛЬНЫЙ промпт который AI получает при каждом анализе**")
         st.markdown("**Включает: базовый промпт + custom rules + learning patterns из feedback**")
         
-        st.text_area(
-            "Полный промпт (read-only)",
-            value=full_prompt,
-            height=500,
-            disabled=True,
-            help="Этот промпт формируется автоматически и отправляется в AI"
-        )
+        st.markdown("**Полный промпт (read-only):**")
+        st.code(full_prompt, language="markdown", line_numbers=False)
         
         if has_learning:
             st.success("✅ В промпт добавлены learning patterns из твоих 👎 reactions!")
