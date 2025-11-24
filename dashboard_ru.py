@@ -22,6 +22,11 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Add Font Awesome
+st.markdown("""
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+""", unsafe_allow_html=True)
+
 # Modern theme with good contrast
 st.markdown("""
 <style>
@@ -559,6 +564,51 @@ st.markdown("""
         margin-right: 10px;
         vertical-align: middle;
     }
+    
+    /* Text Area - Dark theme with light text */
+    .stTextArea textarea {
+        background-color: #1e293b !important;
+        color: #ffffff !important;
+        border: 1px solid #4a5568 !important;
+        border-radius: 8px !important;
+    }
+    
+    .stTextArea textarea:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 1px var(--primary-color) !important;
+    }
+    
+    .stTextArea label {
+        color: #ffffff !important;
+    }
+    
+    /* Expander - Dark theme */
+    .streamlit-expanderHeader {
+        background-color: #1e293b !important;
+        color: #ffffff !important;
+        border: 1px solid #4a5568 !important;
+        border-radius: 8px !important;
+    }
+    
+    .streamlit-expanderContent {
+        background-color: #252936 !important;
+        color: #ffffff !important;
+        border: 1px solid #4a5568 !important;
+        border-top: none !important;
+        border-radius: 0 0 8px 8px !important;
+    }
+    
+    /* Force all text in expander to be white */
+    .streamlit-expanderContent * {
+        color: #ffffff !important;
+    }
+    
+    /* Code blocks inside text areas and expanders */
+    code, pre, .stCode {
+        background-color: #1a1d29 !important;
+        color: #e2e8f0 !important;
+        border: 1px solid #4a5568 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -818,11 +868,11 @@ elif page == "▸ Настройки":
     st.markdown("---")
     
     # Tabs for different views
-    tab1, tab2, tab3 = st.tabs(["📄 Актуальный промпт", "✏️ Редактор custom rules", "📚 Learning patterns"])
+    tab1, tab2, tab3 = st.tabs(["<i class='fas fa-file-code'></i> Актуальный промпт", "<i class='fas fa-edit'></i> Редактор custom rules", "<i class='fas fa-brain'></i> Learning patterns"])
     
     with tab1:
-        st.markdown('<div class="section-header">📄 Актуальный промпт AI</div>', unsafe_allow_html=True)
-        st.markdown("**💡 Это РЕАЛЬНЫЙ промпт который AI получает при каждом анализе**")
+        st.markdown('<div class="section-header"><i class="fas fa-file-code"></i> Актуальный промпт AI</div>', unsafe_allow_html=True)
+        st.markdown("**<i class='fas fa-lightbulb'></i> Это РЕАЛЬНЫЙ промпт который AI получает при каждом анализе**", unsafe_allow_html=True)
         st.markdown("**Включает: базовый промпт + custom rules + learning patterns из feedback**")
         
         st.text_area(
@@ -839,8 +889,8 @@ elif page == "▸ Настройки":
             st.info("💡 Ставь 👎 на AI комментарии в GitLab чтобы AI учился на твоих замечаниях")
     
     with tab2:
-        st.markdown('<div class="section-header">✏️ Редактор custom rules</div>', unsafe_allow_html=True)
-        st.markdown("**💡 Здесь ты можешь добавить свои правила для AI**")
+        st.markdown('<div class="section-header"><i class="fas fa-edit"></i> Редактор custom rules</div>', unsafe_allow_html=True)
+        st.markdown("**<i class='fas fa-lightbulb'></i> Здесь ты можешь добавить свои правила для AI**", unsafe_allow_html=True)
         st.markdown("**Они будут добавлены к базовому промпту**")
         
         custom_prompt = st.text_area(
@@ -853,10 +903,32 @@ elif page == "▸ Настройки":
             height=400,
             help="Эти правила добавятся к базовому промпту"
         )
+        
+        # Save button in tab2
+        st.markdown("---")
+        if st.button("<i class='fas fa-save'></i> Сохранить custom rules", type="primary", use_container_width=True, key="save_custom_rules"):
+            try:
+                response = requests.post(
+                    f"{API_URL}/api/settings",
+                    json={
+                        "custom_rules": custom_prompt,
+                        "min_score": 7.0,
+                        "max_length": 50000
+                    },
+                    timeout=5
+                )
+                
+                if response.status_code == 200:
+                    st.success("<i class='fas fa-check-circle'></i> Custom rules сохранены! Применятся к следующим MR", unsafe_allow_html=True)
+                    st.balloons()
+                else:
+                    st.error(f"<i class='fas fa-times-circle'></i> Ошибка: {response.text}", unsafe_allow_html=True)
+            except Exception as e:
+                st.warning(f"<i class='fas fa-exclamation-triangle'></i> Backend недоступен: {str(e)}", unsafe_allow_html=True)
     
     with tab3:
-        st.markdown('<div class="section-header">📚 Learning Patterns</div>', unsafe_allow_html=True)
-        st.markdown("**💡 Паттерны созданные из твоих 👎 reactions**")
+        st.markdown('<div class="section-header"><i class="fas fa-brain"></i> Learning Patterns</div>', unsafe_allow_html=True)
+        st.markdown("**<i class='fas fa-lightbulb'></i> Паттерны созданные из твоих <i class='fas fa-thumbs-down'></i> reactions**", unsafe_allow_html=True)
         st.markdown("**Эти паттерны АВТОМАТИЧЕСКИ добавляются в промпт при каждом анализе!**")
         
         try:
@@ -865,11 +937,11 @@ elif page == "▸ Настройки":
                 patterns = patterns_response.json()
                 
                 if patterns:
-                    st.success(f"✅ Найдено {len(patterns)} learning patterns")
+                    st.success(f"<i class='fas fa-check-circle'></i> Найдено {len(patterns)} learning patterns", unsafe_allow_html=True)
                     st.markdown("---")
                     
                     for i, pattern in enumerate(reversed(patterns[-10:]), 1):  # Last 10
-                        with st.expander(f"📌 Pattern #{i} - от {pattern.get('added_by', 'Unknown')}", expanded=(i==1)):
+                        with st.expander(f"<i class='fas fa-bookmark'></i> Pattern #{i} - от {pattern.get('added_by', 'Unknown')}", expanded=(i==1)):
                             st.markdown(f"**Правило:** {pattern.get('rule', 'N/A')}")
                             st.markdown(f"**Дата:** {pattern.get('date', 'N/A')}")
                             st.markdown(f"**MR:** #{pattern.get('mr_id', 'N/A')}")
@@ -878,41 +950,11 @@ elif page == "▸ Настройки":
                                 st.markdown("**Контекст AI комментария:**")
                                 st.code(pattern.get('context', '')[:200] + "...", language="text")
                 else:
-                    st.info("📭 Пока нет learning patterns. Ставь 👎 на AI комментарии чтобы создать первый!")
+                    st.info("<i class='fas fa-inbox'></i> Пока нет learning patterns. Ставь <i class='fas fa-thumbs-down'></i> на AI комментарии чтобы создать первый!", unsafe_allow_html=True)
             else:
                 st.warning("⚠️ Не удалось загрузить patterns")
         except:
             st.error("❌ Backend недоступен")
-    
-    st.markdown("---")
-    
-    max_length = st.number_input(
-        "Макс. длина кода для анализа (символов)",
-        value=50000, step=5000,
-        help="Код длиннее будет обрезан перед отправкой в AI"
-    )
-    
-    st.markdown("---")
-    
-    if st.button("💾 Сохранить промпт", type="primary", use_container_width=True):
-        try:
-            response = requests.post(
-                f"{API_URL}/api/settings",
-                json={
-                    "custom_rules": custom_prompt,
-                    "min_score": 7.0,
-                    "max_length": max_length
-                },
-                timeout=5
-            )
-            
-            if response.status_code == 200:
-                st.success("✅ Промпт сохранен! Применится к следующим MR")
-                st.balloons()
-            else:
-                st.error(f"❌ Ошибка: {response.text}")
-        except Exception as e:
-            st.warning(f"⚠️ Backend недоступен: {str(e)}. Промпт сохранен локально для текущей сессии.")
     
     st.markdown("---")
     st.markdown('<div class="section-header">🗑️ Управление данными</div>', unsafe_allow_html=True)
