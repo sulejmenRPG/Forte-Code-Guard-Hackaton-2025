@@ -787,43 +787,102 @@ if page == "▸ Аналитика":
 elif page == "▸ Настройки":
     st.markdown('<div class="main-header">▸ Настройки AI</div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="section-header">Редактор AI промпта</div>', unsafe_allow_html=True)
-    st.markdown("**💡 Здесь ты можешь изменить промпт который AI использует при каждом code review**")
-    st.markdown("**Все изменения применяются сразу к следующим MR**")
+    # Fetch current prompt from backend
+    try:
+        prompt_response = requests.get(f"{API_URL}/api/prompt/current")
+        if prompt_response.status_code == 200:
+            prompt_data = prompt_response.json()
+            full_prompt = prompt_data.get('full_prompt', '')
+            base_prompt = prompt_data.get('base_prompt', '')
+            learned_patterns = prompt_data.get('learned_patterns', '')
+            has_learning = prompt_data.get('has_learning_patterns', False)
+            prompt_length = prompt_data.get('prompt_length', 0)
+        else:
+            full_prompt = "Не удалось загрузить промпт"
+            has_learning = False
+            prompt_length = 0
+    except:
+        full_prompt = "Backend недоступен"
+        has_learning = False
+        prompt_length = 0
+    
+    # Show status
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("📏 Длина промпта", f"{prompt_length} символов")
+    with col2:
+        st.metric("🧠 Learning patterns", "✅ Есть" if has_learning else "❌ Нет")
+    with col3:
+        st.metric("🔄 Статус", "🟢 Актуальный")
     
     st.markdown("---")
     
-    # Full prompt editor
-    custom_prompt = st.text_area(
-        "✏️ AI Промпт (редактируй как хочешь)",
-        value=os.getenv("CUSTOM_RULES", """Ты опытный senior разработчик в банке ForteBank.
+    # Tabs for different views
+    tab1, tab2, tab3 = st.tabs(["📄 Актуальный промпт", "✏️ Редактор custom rules", "📚 Learning patterns"])
+    
+    with tab1:
+        st.markdown('<div class="section-header">📄 Актуальный промпт AI</div>', unsafe_allow_html=True)
+        st.markdown("**💡 Это РЕАЛЬНЫЙ промпт который AI получает при каждом анализе**")
+        st.markdown("**Включает: базовый промпт + custom rules + learning patterns из feedback**")
+        
+        st.text_area(
+            "Полный промпт (read-only)",
+            value=full_prompt,
+            height=500,
+            disabled=True,
+            help="Этот промпт формируется автоматически и отправляется в AI"
+        )
+        
+        if has_learning:
+            st.success("✅ В промпт добавлены learning patterns из твоих 👎 reactions!")
+        else:
+            st.info("💡 Ставь 👎 на AI комментарии в GitLab чтобы AI учился на твоих замечаниях")
+    
+    with tab2:
+        st.markdown('<div class="section-header">✏️ Редактор custom rules</div>', unsafe_allow_html=True)
+        st.markdown("**💡 Здесь ты можешь добавить свои правила для AI**")
+        st.markdown("**Они будут добавлены к базовому промпту**")
+        
+        custom_prompt = st.text_area(
+            "Custom Rules (добавь свои правила)",
+            value=os.getenv("CUSTOM_RULES", """Дополнительные правила для банка ForteBank:
 
-ПРИОРИТЕТЫ ПРОВЕРКИ:
-1. 🔐 БЕЗОПАСНОСТЬ (критично):
-   - SQL injection, XSS, CSRF
-   - Хранение паролей и чувствительных данных
-   - Валидация входных данных
-   - PCI DSS compliance
-
-2. ⚡ ПРОИЗВОДИТЕЛЬНОСТЬ:
-   - N+1 запросы
-   - Утечки памяти
-   - Неэффективные алгоритмы
-
-3. 🐛 БАГИ:
-   - Отсутствие обработки ошибок
-   - Race conditions
-   - Edge cases
-
-4. 📖 КОД:
-   - Читаемость
-   - Комментарии
-   - Дублирование
-
-ВАЖНО: Будь конструктивным и давай конкретные решения."""),
-        height=400,
-        help="Этот промпт отправляется AI при каждом ревью. Изменяй под свои нужды."
-    )
+1. Всегда проверяй PCI DSS compliance
+2. Критично относись к работе с персональными данными
+3. Требуй обязательное логирование всех транзакций"""),
+            height=400,
+            help="Эти правила добавятся к базовому промпту"
+        )
+    
+    with tab3:
+        st.markdown('<div class="section-header">📚 Learning Patterns</div>', unsafe_allow_html=True)
+        st.markdown("**💡 Паттерны созданные из твоих 👎 reactions**")
+        st.markdown("**Эти паттерны АВТОМАТИЧЕСКИ добавляются в промпт при каждом анализе!**")
+        
+        try:
+            patterns_response = requests.get(f"{API_URL}/api/learning/patterns")
+            if patterns_response.status_code == 200:
+                patterns = patterns_response.json()
+                
+                if patterns:
+                    st.success(f"✅ Найдено {len(patterns)} learning patterns")
+                    st.markdown("---")
+                    
+                    for i, pattern in enumerate(reversed(patterns[-10:]), 1):  # Last 10
+                        with st.expander(f"📌 Pattern #{i} - от {pattern.get('added_by', 'Unknown')}", expanded=(i==1)):
+                            st.markdown(f"**Правило:** {pattern.get('rule', 'N/A')}")
+                            st.markdown(f"**Дата:** {pattern.get('date', 'N/A')}")
+                            st.markdown(f"**MR:** #{pattern.get('mr_id', 'N/A')}")
+                            
+                            if pattern.get('context'):
+                                st.markdown("**Контекст AI комментария:**")
+                                st.code(pattern.get('context', '')[:200] + "...", language="text")
+                else:
+                    st.info("📭 Пока нет learning patterns. Ставь 👎 на AI комментарии чтобы создать первый!")
+            else:
+                st.warning("⚠️ Не удалось загрузить patterns")
+        except:
+            st.error("❌ Backend недоступен")
     
     st.markdown("---")
     

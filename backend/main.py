@@ -393,6 +393,44 @@ async def get_learning_patterns():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/prompt/current")
+async def get_current_prompt():
+    """Get the actual prompt that AI uses (base + learning patterns)"""
+    try:
+        from backend.prompts import CODE_REVIEW_PROMPT
+        
+        # Get base prompt
+        base_prompt = CODE_REVIEW_PROMPT.replace("{code_changes}", "[код из MR будет здесь]")
+        
+        # Get custom rules if any
+        custom_rules = current_settings.get("custom_rules", "")
+        
+        # Get learning patterns
+        learned_context = learning_system.get_feedback_for_prompt()
+        
+        # Construct full prompt as it's sent to AI
+        full_prompt = base_prompt
+        
+        if custom_rules:
+            full_prompt += f"\n\n## CUSTOM RULES:\n{custom_rules}"
+        
+        if learned_context:
+            full_prompt += learned_context
+        
+        return {
+            "base_prompt": base_prompt,
+            "custom_rules": custom_rules,
+            "learned_patterns": learned_context,
+            "full_prompt": full_prompt,
+            "prompt_length": len(full_prompt),
+            "has_learning_patterns": bool(learned_context)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting current prompt: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Global settings storage (in-memory for now, can be moved to DB)
 current_settings = {
     "custom_rules": "",
