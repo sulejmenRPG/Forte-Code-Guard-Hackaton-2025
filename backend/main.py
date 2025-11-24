@@ -142,6 +142,7 @@ async def gitlab_webhook(
         
         # Add project_id to mr_data for database save
         mr_data['project_id'] = project_id
+        logger.info(f"✅ Added project_id to mr_data: {project_id}")
         
         # Check for duplicate processing
         mr_key = (project_id, mr_iid)
@@ -193,6 +194,7 @@ async def gitlab_webhook(
             )
         
         # Save to database
+        logger.info(f"💾 Saving to DB - project_id in mr_data: {mr_data.get('project_id')}, mr_iid: {mr_iid}")
         save_review(mr_data, analysis_result)
         
         logger.info(f"✅ Analysis complete! Score: {analysis_result['score']}/10")

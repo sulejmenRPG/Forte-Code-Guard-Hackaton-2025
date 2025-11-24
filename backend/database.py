@@ -124,6 +124,9 @@ def save_review(mr_data: dict, analysis_result: dict):
         estimated_time = min(estimated_time, 120)  # Cap at 2 hours
         estimated_time = max(estimated_time, 5)    # Minimum 5 min
         
+        # Log what we're about to save
+        logger.info(f"📊 Creating review record - MR: {mr_data.get('iid')}, project_id: {mr_data.get('project_id')}")
+        
         review = CodeReviewDB(
             merge_request_id=mr_data.get('iid'),
             project_id=mr_data.get('project_id'),
