@@ -927,7 +927,25 @@ elif page == "▸ Настройки":
         st.markdown("**Включает: базовый промпт + custom rules + learning patterns из feedback**")
         
         st.markdown("**Полный промпт (read-only):**")
-        st.code(full_prompt, language="markdown", line_numbers=False)
+        # Custom HTML with inline styles - GUARANTEED to work
+        st.markdown(f"""
+        <div style="
+            background-color: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #4a5568;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        ">
+{full_prompt}
+        </div>
+        """, unsafe_allow_html=True)
         
         if has_learning:
             st.success("✅ В промпт добавлены learning patterns из твоих 👎 reactions!")
