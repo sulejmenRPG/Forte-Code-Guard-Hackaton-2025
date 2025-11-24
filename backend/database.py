@@ -222,6 +222,7 @@ def get_recent_reviews(limit: int = 10):
         for review in reviews:
             result.append({
                 "mr_id": review.merge_request_id,
+                "project_id": review.project_id,  # ✅ ДОБАВЛЕНО!
                 "project_name": review.project_name,
                 "author": review.author,
                 "score": review.score,
