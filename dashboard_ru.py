@@ -22,6 +22,11 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Add Font Awesome
+st.markdown("""
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+""", unsafe_allow_html=True)
+
 # Modern theme with good contrast
 st.markdown("""
 <style>
@@ -910,20 +915,20 @@ elif page == "▸ Настройки":
     # Show status
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("📏 Длина промпта", f"{prompt_length} символов")
+        st.metric("Длина промпта", f"{prompt_length} символов")
     with col2:
-        st.metric("🧠 Learning patterns", "✅ Есть" if has_learning else "❌ Нет")
+        st.metric("Learning patterns", "Есть" if has_learning else "Нет")
     with col3:
-        st.metric("🔄 Статус", "🟢 Актуальный")
+        st.metric("Статус", "Актуальный")
     
     st.markdown("---")
     
     # Tabs for different views
-    tab1, tab2, tab3 = st.tabs(["📄 Актуальный промпт", "✏️ Редактор custom rules", "🧠 Learning patterns"])
+    tab1, tab2, tab3 = st.tabs(["Актуальный промпт", "Редактор custom rules", "Learning patterns"])
     
     with tab1:
-        st.markdown("### 📄 Актуальный промпт AI")
-        st.markdown("**💡 Это РЕАЛЬНЫЙ промпт который AI получает при каждом анализе**")
+        st.markdown('<h3><i class="fas fa-file-code"></i> Актуальный промпт AI</h3>', unsafe_allow_html=True)
+        st.markdown('**<i class="fas fa-lightbulb"></i> Это РЕАЛЬНЫЙ промпт который AI получает при каждом анализе**', unsafe_allow_html=True)
         st.markdown("**Включает: базовый промпт + custom rules + learning patterns из feedback**")
         
         st.markdown("**Полный промпт (read-only):**")
@@ -948,13 +953,13 @@ elif page == "▸ Настройки":
         """, unsafe_allow_html=True)
         
         if has_learning:
-            st.success("✅ В промпт добавлены learning patterns из твоих 👎 reactions!")
+            st.success('<i class="fas fa-check-circle"></i> В промпт добавлены learning patterns из твоих <i class="fas fa-thumbs-down"></i> reactions!', unsafe_allow_html=True)
         else:
-            st.info("💡 Ставь 👎 на AI комментарии в GitLab чтобы AI учился на твоих замечаниях")
+            st.info('<i class="fas fa-info-circle"></i> Ставь <i class="fas fa-thumbs-down"></i> на AI комментарии в GitLab чтобы AI учился на твоих замечаниях', unsafe_allow_html=True)
     
     with tab2:
-        st.markdown("### ✏️ Редактор custom rules")
-        st.markdown("**💡 Здесь ты можешь добавить свои правила для AI**")
+        st.markdown('<h3><i class="fas fa-edit"></i> Редактор custom rules</h3>', unsafe_allow_html=True)
+        st.markdown('**<i class="fas fa-lightbulb"></i> Здесь ты можешь добавить свои правила для AI**', unsafe_allow_html=True)
         st.markdown("**Они будут добавлены к базовому промпту**")
         
         custom_prompt = st.text_area(
@@ -970,7 +975,7 @@ elif page == "▸ Настройки":
         
         # Save button in tab2
         st.markdown("---")
-        if st.button("💾 Сохранить custom rules", type="primary", use_container_width=True, key="save_custom_rules"):
+        if st.button("Сохранить custom rules", type="primary", use_container_width=True, key="save_custom_rules"):
             try:
                 response = requests.post(
                     f"{API_URL}/api/settings",
@@ -983,16 +988,16 @@ elif page == "▸ Настройки":
                 )
                 
                 if response.status_code == 200:
-                    st.success("✅ Custom rules сохранены! Применятся к следующим MR")
+                    st.success('<i class="fas fa-check-circle"></i> Custom rules сохранены! Применятся к следующим MR', unsafe_allow_html=True)
                     st.balloons()
                 else:
-                    st.error(f"❌ Ошибка: {response.text}")
+                    st.error(f'<i class="fas fa-times-circle"></i> Ошибка: {response.text}', unsafe_allow_html=True)
             except Exception as e:
-                st.warning(f"⚠️ Backend недоступен: {str(e)}")
+                st.warning(f'<i class="fas fa-exclamation-triangle"></i> Backend недоступен: {str(e)}', unsafe_allow_html=True)
     
     with tab3:
-        st.markdown("### 🧠 Learning Patterns")
-        st.markdown("**💡 Паттерны созданные из твоих 👎 reactions**")
+        st.markdown('<h3><i class="fas fa-brain"></i> Learning Patterns</h3>', unsafe_allow_html=True)
+        st.markdown('**<i class="fas fa-lightbulb"></i> Паттерны созданные из твоих <i class="fas fa-thumbs-down"></i> reactions**', unsafe_allow_html=True)
         st.markdown("**Эти паттерны АВТОМАТИЧЕСКИ добавляются в промпт при каждом анализе!**")
         
         try:
@@ -1001,11 +1006,11 @@ elif page == "▸ Настройки":
                 patterns = patterns_response.json()
                 
                 if patterns:
-                    st.success(f"✅ Найдено {len(patterns)} learning patterns")
+                    st.success(f'<i class="fas fa-check-circle"></i> Найдено {len(patterns)} learning patterns', unsafe_allow_html=True)
                     st.markdown("---")
                     
                     for i, pattern in enumerate(reversed(patterns[-10:]), 1):  # Last 10
-                        with st.expander(f"📌 Pattern #{i} - от {pattern.get('added_by', 'Unknown')}", expanded=(i==1)):
+                        with st.expander(f"Pattern #{i} - от {pattern.get('added_by', 'Unknown')}", expanded=(i==1)):
                             st.markdown(f"**Правило:** {pattern.get('rule', 'N/A')}")
                             st.markdown(f"**Дата:** {pattern.get('date', 'N/A')}")
                             st.markdown(f"**MR:** #{pattern.get('mr_id', 'N/A')}")
@@ -1014,18 +1019,18 @@ elif page == "▸ Настройки":
                                 st.markdown("**Контекст AI комментария:**")
                                 st.code(pattern.get('context', '')[:200] + "...", language="text")
                 else:
-                    st.info("📭 Пока нет learning patterns. Ставь 👎 на AI комментарии чтобы создать первый!")
+                    st.info('<i class="fas fa-inbox"></i> Пока нет learning patterns. Ставь <i class="fas fa-thumbs-down"></i> на AI комментарии чтобы создать первый!', unsafe_allow_html=True)
             else:
-                st.warning(f"⚠️ Ошибка загрузки: {patterns_response.status_code}")
+                st.warning(f'<i class="fas fa-exclamation-triangle"></i> Ошибка загрузки: {patterns_response.status_code}', unsafe_allow_html=True)
         except requests.exceptions.Timeout:
-            st.error("❌ Backend не отвечает (timeout)")
+            st.error('<i class="fas fa-times-circle"></i> Backend не отвечает (timeout)', unsafe_allow_html=True)
         except requests.exceptions.ConnectionError:
-            st.error("❌ Не могу подключиться к backend")
+            st.error('<i class="fas fa-times-circle"></i> Не могу подключиться к backend', unsafe_allow_html=True)
         except Exception as e:
-            st.error(f"❌ Ошибка: {str(e)}")
+            st.error(f'<i class="fas fa-times-circle"></i> Ошибка: {str(e)}', unsafe_allow_html=True)
     
     st.markdown("---")
-    st.markdown('<div class="section-header">🗑️ Управление данными</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header"><i class="fas fa-database"></i> Управление данными</div>', unsafe_allow_html=True)
     
     st.markdown("**Очистка базы данных:**")
     st.markdown("Удалит все сохраненные reviews из БД. Dashboard будет показывать только новые MR.")
@@ -1034,7 +1039,7 @@ elif page == "▸ Настройки":
     with col1:
         confirm_clear = st.checkbox("Я понимаю что это удалит все данные", key="confirm_clear")
     with col2:
-        if st.button("🗑️ Очистить БД", type="secondary", disabled=not confirm_clear, use_container_width=True):
+        if st.button("Очистить БД", type="secondary", disabled=not confirm_clear, use_container_width=True):
             try:
                 response = requests.delete(f"{API_URL}/api/reviews", timeout=5)
                 if response.status_code == 200:
