@@ -953,9 +953,9 @@ elif page == "▸ Настройки":
         """, unsafe_allow_html=True)
         
         if has_learning:
-            st.success('<i class="fas fa-check-circle"></i> В промпт добавлены learning patterns из твоих <i class="fas fa-thumbs-down"></i> reactions!', unsafe_allow_html=True)
+            st.markdown('<div style="padding: 10px; background-color: #10b98133; border-left: 4px solid #10b981; border-radius: 4px; color: #10b981;"><i class="fas fa-check-circle"></i> В промпт добавлены learning patterns из твоих <i class="fas fa-thumbs-down"></i> reactions!</div>', unsafe_allow_html=True)
         else:
-            st.info('<i class="fas fa-info-circle"></i> Ставь <i class="fas fa-thumbs-down"></i> на AI комментарии в GitLab чтобы AI учился на твоих замечаниях', unsafe_allow_html=True)
+            st.markdown('<div style="padding: 10px; background-color: #3b82f633; border-left: 4px solid #3b82f6; border-radius: 4px; color: #3b82f6;"><i class="fas fa-info-circle"></i> Ставь <i class="fas fa-thumbs-down"></i> на AI комментарии в GitLab чтобы AI учился на твоих замечаниях</div>', unsafe_allow_html=True)
     
     with tab2:
         st.markdown('<h3><i class="fas fa-edit"></i> Редактор custom rules</h3>', unsafe_allow_html=True)
@@ -988,12 +988,12 @@ elif page == "▸ Настройки":
                 )
                 
                 if response.status_code == 200:
-                    st.success('<i class="fas fa-check-circle"></i> Custom rules сохранены! Применятся к следующим MR', unsafe_allow_html=True)
+                    st.markdown('<div style="padding: 10px; background-color: #10b98133; border-left: 4px solid #10b981; border-radius: 4px; color: #10b981;"><i class="fas fa-check-circle"></i> Custom rules сохранены! Применятся к следующим MR</div>', unsafe_allow_html=True)
                     st.balloons()
                 else:
-                    st.error(f'<i class="fas fa-times-circle"></i> Ошибка: {response.text}', unsafe_allow_html=True)
+                    st.markdown(f'<div style="padding: 10px; background-color: #ef444433; border-left: 4px solid #ef4444; border-radius: 4px; color: #ef4444;"><i class="fas fa-times-circle"></i> Ошибка: {response.text}</div>', unsafe_allow_html=True)
             except Exception as e:
-                st.warning(f'<i class="fas fa-exclamation-triangle"></i> Backend недоступен: {str(e)}', unsafe_allow_html=True)
+                st.markdown(f'<div style="padding: 10px; background-color: #f59e0b33; border-left: 4px solid #f59e0b; border-radius: 4px; color: #f59e0b;"><i class="fas fa-exclamation-triangle"></i> Backend недоступен: {str(e)}</div>', unsafe_allow_html=True)
     
     with tab3:
         st.markdown('<h3><i class="fas fa-brain"></i> Learning Patterns</h3>', unsafe_allow_html=True)
@@ -1006,7 +1006,7 @@ elif page == "▸ Настройки":
                 patterns = patterns_response.json()
                 
                 if patterns:
-                    st.success(f'<i class="fas fa-check-circle"></i> Найдено {len(patterns)} learning patterns', unsafe_allow_html=True)
+                    st.markdown(f'<div style="padding: 10px; background-color: #10b98133; border-left: 4px solid #10b981; border-radius: 4px; color: #10b981;"><i class="fas fa-check-circle"></i> Найдено {len(patterns)} learning patterns</div>', unsafe_allow_html=True)
                     st.markdown("---")
                     
                     for i, pattern in enumerate(reversed(patterns[-10:]), 1):  # Last 10
@@ -1019,15 +1019,15 @@ elif page == "▸ Настройки":
                                 st.markdown("**Контекст AI комментария:**")
                                 st.code(pattern.get('context', '')[:200] + "...", language="text")
                 else:
-                    st.info('<i class="fas fa-inbox"></i> Пока нет learning patterns. Ставь <i class="fas fa-thumbs-down"></i> на AI комментарии чтобы создать первый!', unsafe_allow_html=True)
+                    st.markdown('<div style="padding: 10px; background-color: #3b82f633; border-left: 4px solid #3b82f6; border-radius: 4px; color: #3b82f6;"><i class="fas fa-inbox"></i> Пока нет learning patterns. Ставь <i class="fas fa-thumbs-down"></i> на AI комментарии чтобы создать первый!</div>', unsafe_allow_html=True)
             else:
-                st.warning(f'<i class="fas fa-exclamation-triangle"></i> Ошибка загрузки: {patterns_response.status_code}', unsafe_allow_html=True)
+                st.markdown(f'<div style="padding: 10px; background-color: #f59e0b33; border-left: 4px solid #f59e0b; border-radius: 4px; color: #f59e0b;"><i class="fas fa-exclamation-triangle"></i> Ошибка загрузки: {patterns_response.status_code}</div>', unsafe_allow_html=True)
         except requests.exceptions.Timeout:
-            st.error('<i class="fas fa-times-circle"></i> Backend не отвечает (timeout)', unsafe_allow_html=True)
+            st.markdown('<div style="padding: 10px; background-color: #ef444433; border-left: 4px solid #ef4444; border-radius: 4px; color: #ef4444;"><i class="fas fa-times-circle"></i> Backend не отвечает (timeout)</div>', unsafe_allow_html=True)
         except requests.exceptions.ConnectionError:
-            st.error('<i class="fas fa-times-circle"></i> Не могу подключиться к backend', unsafe_allow_html=True)
+            st.markdown('<div style="padding: 10px; background-color: #ef444433; border-left: 4px solid #ef4444; border-radius: 4px; color: #ef4444;"><i class="fas fa-times-circle"></i> Не могу подключиться к backend</div>', unsafe_allow_html=True)
         except Exception as e:
-            st.error(f'<i class="fas fa-times-circle"></i> Ошибка: {str(e)}', unsafe_allow_html=True)
+            st.markdown(f'<div style="padding: 10px; background-color: #ef444433; border-left: 4px solid #ef4444; border-radius: 4px; color: #ef4444;"><i class="fas fa-times-circle"></i> Ошибка: {str(e)}</div>', unsafe_allow_html=True)
     
     st.markdown("---")
     st.markdown('<div class="section-header"><i class="fas fa-database"></i> Управление данными</div>', unsafe_allow_html=True)
